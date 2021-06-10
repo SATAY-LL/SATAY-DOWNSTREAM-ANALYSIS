@@ -1,5 +1,5 @@
-# python-modules-for-bioinformatic-analyses
+# SATAY DOWNSTREAM ANALYSIS
 
-This repo will serve for documenting all (or a part of it) of the python modules I did for the PhD project
+This repo will contain scripts for some analysis to the data delivered by the  [data analysis pipeline](https://github.com/SATAY-LL/LaanLab-SATAY-DataAnalysis).
 
-[![DOI](https://zenodo.org/badge/299373495.svg)](https://zenodo.org/badge/latestdoi/299373495)
+Description of scripts: 
