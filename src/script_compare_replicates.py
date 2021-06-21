@@ -12,10 +12,27 @@ import matplotlib.pyplot as plt
 import pylab
 import statistics
 import math
+from tkinter import Tk
+from tkinter import filedialog
+
+        
+        
+#%% Selecting all datasets from your local files 
+
+root = Tk()
+root.filename =  filedialog.askopenfilename(title = "Chromosome regions file",filetypes = (("tsv files","*.tsv"),("all files","*.*")))
+filename_chrom=root.filename
+root.withdraw()        
+#%%
+
 #STEP III:
 #compare our fitness values to cellmap data
 #get data from step II and put it in a dataframe
-dataframe = pd.read_csv(r"C:\Users\floor\OneDrive\Documenten\MASTER\MEP\codes\LaanLab-SATAY-DataAnalysis\Python_scripts\ChromosomeRegion_AllGenes.tsv", sep = "\t", names = ["chromosome","gene", "start bp", "stop bp",  "+1 or -1 strand"] )
+
+##### you should change the variable name to something more appropiate for this datafile, otherwise you have to comment
+## what it does 
+dataframe = pd.read_csv(filename_chrom, sep = "\t", names = ["chromosome","gene", "start bp", "stop bp",  "+1 or -1 strand"] )
+
 dataframe['readsWT1'] = ''
 dataframe['reads_avr1'] = ''
 dataframe['readsWT2'] = ''
@@ -31,6 +48,7 @@ dataframe['fitness_avr1median'] = ''
 # import readsWT1
 dataframe['readsWT1']= dataframe['readsWT1'].astype('object')
 
+## You should do all the imports before to have at the beginning a clear overview of all the data you will be needing 
 with open('data_step2_readsWT1.csv', newline='') as f:
     reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
     data = list(reader)
@@ -61,6 +79,8 @@ with open('data_step2WT2.csv', newline='') as f:
 dataframe['fitnessWT2'] = data4
 
 del(data,data2,data3,data4)
+
+#%%% what all these variables mean ??? 
 z = 1.960 #for 95 percent confidence interval
 N=117601914802*10000000 
 pcr = 35
@@ -69,6 +89,9 @@ n1 = 31793901
 n2 = 15302907
 gfHO1 = 3.88665
 gfHO2 = 4.10502
+
+#%% For loop for? 
+
 for i in range(0,len(dataframe)):
 
 
@@ -94,7 +117,7 @@ for i in range(0,len(dataframe)):
         dataframe.at[i,'fitness_avr2'] = statistics.mean(dataframe.at[i,'fitnessWT2'])
         dataframe.at[i,'fitness_avr2median'] = statistics.median(dataframe.at[i,'fitnessWT2'])
         dataframe.at[i, 'error2'] =  math.log(np.longdouble(2*(z*(statistics.stdev(dataframe.at[i, 'readsWT2']))/(np.sqrt(len(dataframe.at[i,'readsWT2'])))))*N/n2*a, (2))/gfHO2
-
+#%%
 ##filter on values that you want to see 
 readsWT1 = []
 readsWT2 = [] 
@@ -117,7 +140,7 @@ for i in range(0,len(dataframe)):
         WT2med.append(dataframe.at[i,'fitness_avr2median'])
         
 #and dataframe.at[i, 'chromosome'] == chromosome 
-        
+#%%        
 #compute mean square error
 a = np.array(WT1) 
 b = np.array(WT2) 
@@ -126,7 +149,7 @@ mses = np.sqrt(((a-b)**2).mean())
 aa = np.array(WT1med) 
 bb = np.array(WT2med) 
 msesmed = np.sqrt(((aa-bb)**2).mean())
-
+#%%
  ## PLOTS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #plot reads wt1 wt2     
 plt.style.use('Solarize_Light2')
