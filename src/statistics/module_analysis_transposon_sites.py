@@ -12,6 +12,7 @@ from collections import defaultdict
 import os
 import seaborn as sns
 import scipy 
+from scipy.stats import sem
 
 ### Analysis of transposition sites
 
@@ -24,10 +25,8 @@ import scipy
 
 def frequency_transposons(data):
     """Compute how many bp are per transposons in average"""
-    
-   bp_per_tr=data.loc[:,'Nbasepairs'].sum()/data.loc[:,'Ninsertions'].sum()
-        
-   return bp_per_tr
+    bp_per_tr=data.loc[:,'Nbasepairs'].sum()/data.loc[:,'Ninsertions'].sum()
+    return bp_per_tr
 
 
 
@@ -51,11 +50,23 @@ def transposon_density(data):
 
     
 def median_feature_essentials(data,feature):
-    """Compute the median of the desired column for essential genes """
-    
-   median_feature=data[data.loc[:,'Essentiality']==1][feature].median()  
-      
-   return median_feature
+    """Compute the median of the desired column for essential genes
+
+    Parameters
+    ----------
+    data : [type]
+        [description]
+    feature : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """   
+
+    median_feature=data[data.loc[:,'Essentiality']==1][feature].median()  
+    return median_feature
     
 def median_feature_nonessentials(data,feature):
     """Compute the median of the desired column for non essential genes """
@@ -70,7 +81,7 @@ def local_variation(chrom,windows,data,column):
     """Computing the mean and std of any feature
     per chromosome with a given rolling window size"""
     
-    from scipy.stats import sem 
+     
     
     df=data[data.loc[:,'Chromosome']==chrom]
     
@@ -82,9 +93,29 @@ def local_variation(chrom,windows,data,column):
     return mean_values,std_values
  
 
-def filter_low_and_biased_reads_genes(target_data,reads_upper_th=25,tr_upper_th=2,tr_density_upper_th=0.01,tr_density_low_th=0.2):
+def filter_low_and_biased_reads_genes(target_data,reads_upper_th=25,tr_upper_th=5,tr_density_upper_th=0.01,tr_density_low_th=0.2):
     """Filter dataset to have enough data to work with for further measures
-    like fitness per gene"""
+    like fitness per gene
+
+    Parameters
+    ----------
+    target_data : [type]
+        [description]
+    reads_upper_th : int, optional
+        [description], by default 25
+    tr_upper_th : int, optional
+        [description], by default 5
+    tr_density_upper_th : float, optional
+        [description], by default 0.01
+    tr_density_low_th : float, optional
+        [description], by default 0.2
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+   
     
     #- Discard the genes that has less than 25 reads 
     #- Discard the genes that has more 20% coverage of transposons (centromeres , bias genes), tr-density>0.2 (less than 3% of the data)
@@ -113,3 +144,30 @@ def filter_low_and_biased_reads_genes(target_data,reads_upper_th=25,tr_upper_th=
         target_data.loc[i,'reads-per-tr']=target_data.loc[i,'Nreads']/(target_data.loc[i,'Ninsertions']-1)#there is one more transposon from the maximum reads
 
     return target_data
+
+
+
+def reads_distribution_per_gene(data,gene): 
+    """Provide the distribution of reads per gene 
+
+    Parameters
+    ----------
+    data : [type]
+        [description]
+    gene : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+    # gene='BDH1'
+    total=len(data.loc[gene,'Nreads_list'].strip('[]'))
+    reads_gene=[]
+    for i in np.arange(0,total):
+        value=data.loc[gene,'Nreads_list'].strip('[]')
+        if value[i]!='.' and value[i]!= ' ':
+        
+            reads_gene.append(int(value[i]))
+    return reads_gene

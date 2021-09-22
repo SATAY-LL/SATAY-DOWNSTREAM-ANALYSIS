@@ -24,7 +24,8 @@ names_libraries={'wt_a':'data_wt_a.xlsx','wt_b':'data_wt_b.xlsx',
                  'dnrp1_2_a':'dnrp1_1_2_a_unmerged.xlsx','dnrp1_2_b':'dnrp1_1_2_b_unmerged.xlsx'}
 data_library=[]
 for i in names_libraries.keys():
- data_library.append(pd.read_excel('datasets/'+names_libraries[i],index_col='Unnamed: 0'))
+ data_library.append(pd.read_excel('./datasets/'+names_libraries[i],index_col='Unnamed: 0'))
+ 
 #%%
 #### Creating a big dataframe of the libraries
 

@@ -43,7 +43,7 @@ data_library_pd.fillna(0,inplace=True)
 freq=frequency_transposons(data_library_pd,names_libraries)
 reads_per_tr=reads_per_transposon(data_library_pd,names_libraries)
 tr_density=transposon_density(data_library_pd,names_libraries)
-median_insertions=median_feature(data_library_pd,names_libraries,'Ninsertions')
+#median_insertions=median_feature(data_library_pd,names_libraries,'Ninsertions')
 median_insert_essentials=median_feature_essentials(data_library_pd,names_libraries,'Ninsertions')
 median_insert_nonessentials=median_feature_nonessentials(data_library_pd,names_libraries,'Ninsertions')
 #%% Assembling the masure into a dataframe 
