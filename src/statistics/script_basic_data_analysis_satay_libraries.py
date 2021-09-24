@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 16 10:25:17 2021
-This script will be used to do basic data analaysis for the satay libraries according 
+This script will be used to do basic data nalaysis for the satay libraries according 
 what is presenting in (Michel et al., 2017)
 @author: linigodelacruz
 """
@@ -14,13 +14,13 @@ import seaborn as sns
 import scipy 
 from functools import reduce
 
-from module_analysis_transposon_sites import *
+from src.python_modules.module_analysis_transposon_sites import *
 #%% Import of dataframes output from the SATAY pipeline
 
 names_libraries={'wt':'data_wt_merged.xlsx','dnrp1':'data_dnrp1_merged.xlsx'}
 data_library=[]
 for i in names_libraries.keys():
- data_library.append(pd.read_excel('datasets/'+names_libraries[i],index_col='Unnamed: 0'))
+ data_library.append(pd.read_excel('datasets/'+names_libraries[i],index_col='Unnamed: 0',engine='openpyxl'))
 #### Creating a big dataframe of the libraries
 
 
@@ -43,7 +43,7 @@ data_library_pd.fillna(0,inplace=True)
 freq=frequency_transposons(data_library_pd,names_libraries)
 reads_per_tr=reads_per_transposon(data_library_pd,names_libraries)
 tr_density=transposon_density(data_library_pd,names_libraries)
-#median_insertions=median_feature(data_library_pd,names_libraries,'Ninsertions')
+median_insertions=median_feature(data_library_pd,names_libraries,'Ninsertions')
 median_insert_essentials=median_feature_essentials(data_library_pd,names_libraries,'Ninsertions')
 median_insert_nonessentials=median_feature_nonessentials(data_library_pd,names_libraries,'Ninsertions')
 #%% Assembling the masure into a dataframe 
@@ -105,8 +105,6 @@ for i in np.arange(0,total):
     if value[i]!='.' and value[i]!= ' ':
     
         reads_gene.append(int(value[i]))
-        
-    
 #%% Plot transposon density (fig 1B Benoit) highlighting the centromere position
 
 fig = plt.figure(figsize=(10,5))
@@ -115,7 +113,7 @@ ax.plot(data_wt['tr-density'],alpha=0.5,color='b')
 ax.set_ylabel('transposon density: tn/bp')
 ax.set_xlabel('genes')
 ## annotated centromeres
-for i in np.arange(0,len(data_wt)):
+for i in data_wt.index:
     
     if data_wt.loc[i,'Feature_type']=='Centromere': 
    
@@ -131,7 +129,7 @@ ax.plot(data_wt['tr-density'],alpha=0.5,color='b')
 ax.set_ylabel('transposond density: tn/bp')
 
 ## annotated centromeres
-for i in np.arange(0,len(data_wt)):
+for i in data_wt.index:
     
     if data_wt.loc[i,'Feature_type']=='Centromere': 
    
@@ -142,12 +140,14 @@ ax2.plot(data_nrp1['tr-density'],alpha=0.5,color='orange')
 ax2.set_ylabel('transposon density: tn/bp dnrp1 ')
 ax2.set_xlabel('genes')
 ## annotated centromeres
-for i in np.arange(0,len(data_nrp1)):
+for i in data_nrp1.index:
     
     if data_nrp1.loc[i,'Feature_type']=='Centromere': 
    
         ax2.vlines(x=i,ymin=0,ymax=0.8,linestyles='--',alpha=0.3)
-        ax2.text(x=i,y=0.6,s='centromere',rotation=90,fontsize=8)
+        ax2.text(x=i,y=0.6,s='centromere',rotation=90,fontsize=8)  
+
+    
 #%% saving the figure transposon density
 fig.savefig('output_images/Transposon-density-WT-annotated-centromeres-WT-vs-dnrp1.png',dpi=300,format='png',transparent=False)
 #%%  Plot reads per transposon  highlighting the centromere position
@@ -167,7 +167,7 @@ ax.set_ylabel('reads per tr filtered for high tr-density')
 
 ax.set_ylim(0,2000)
 ## annotated centromeres
-for i in np.arange(0,len(strain)):
+for i in strain.index:
     
     if strain.loc[i,'Feature_type']=='Centromere': 
    
@@ -182,7 +182,7 @@ ax4.set_ylabel('reads per tr without density filter')
 ax4.set_ylim(0,2000)
 #ax4.set_xticks([])
 ## annotated centromeres
-for i in np.arange(0,len(strain)):
+for i in strain.index:
     
     if strain.loc[i,'Feature_type']=='Centromere': 
    
@@ -196,7 +196,7 @@ ax2.plot(strain['tr-density'],alpha=0.7,color='black')
 ax2.set_ylabel('transposon density')
 ax2.set_ylim(0,1)
 ## annotated centromeres
-for i in np.arange(0,len(data_wt)):
+for i in strain.index:
     
     if strain.loc[i,'Feature_type']=='Centromere': 
    
@@ -208,7 +208,7 @@ ax3.set_ylabel('Reads density')
 ax3.set_xlabel('genomic regions')
 ax3.set_ylim(0,250)
 ## annotated centromeres
-for i in np.arange(0,len(data_wt)):
+for i in strain.index:
     
     if strain.loc[i,'Feature_type']=='Centromere': 
    
@@ -244,7 +244,7 @@ ax.hlines(y=cutoff,xmin=0,xmax=14000,linestyles='--',alpha=0.3,label='cutoff')
 ax.set_ylabel('fold change reads per tr')
 ax.set_ylim(0,100)
 ## annotated centromeres
-for i in np.arange(0,len(data_wt)):
+for i in data_wt.index:
     
     
     if fold_change[i]>cutoff and data_wt.loc[i,'Standard_name']!='noncoding':
@@ -261,7 +261,7 @@ ax1.set_xlabel('genomic regions')
 ax1.set_ylabel('fold change reads per tr')
 ax1.set_ylim(0,100)
 ## annotated centromeres
-for i in np.arange(0,len(data_wt)):
+for i in data_wt.index:
     
     
     if fold_change_nrp1[i]>cutoff and data_wt.loc[i,'Standard_name']!='noncoding' :
@@ -305,7 +305,7 @@ ax.hlines(y=cutoff,xmin=0,xmax=14000,linestyles='--',alpha=0.3,label='cutoff')
 ax.set_ylabel('fold change tr density')
 ax.set_ylim(0,15)
 ## annotated centromeres
-for i in np.arange(0,len(data_wt)):
+for i in data_wt.index:
     
     
     if fold_change[i]>cutoff and data_wt.loc[i,'Standard_name']!='noncoding':
@@ -323,7 +323,7 @@ ax1.set_ylabel('fold change tr density')
 ax1.set_ylim(0,30)
 ## annotated centromeres
 
-for i in np.arange(0,len(data_wt)):
+for i in data_wt.index:
     
     
     if fold_change_nrp1[i]>cutoff and data_wt.loc[i,'Standard_name']!='noncoding' :
@@ -472,8 +472,8 @@ fig.savefig('Number-of-transposons-per-gene-Greg2.png',dpi=300,format='png',tran
 fig=plt.figure(figsize=(10,9))
 grid = plt.GridSpec(2, 1, wspace=0.0, hspace=0.0)
 
-essentials=data_wt_greg2[data_wt_greg2.loc[:,'Essentiality']==1]['Ninsertions']
-nonessentials=data_wt_greg2[data_wt_greg2.loc[:,'Essentiality']==0]['Ninsertions']
+essentials=data_wt[data_wt.loc[:,'Essentiality']==1]['Ninsertions']
+nonessentials=data_wt[data_wt.loc[:,'Essentiality']==0]['Ninsertions']
 
 
 ax = plt.subplot(grid[0,0])
