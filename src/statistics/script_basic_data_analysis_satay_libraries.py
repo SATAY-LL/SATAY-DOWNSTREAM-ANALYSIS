@@ -17,7 +17,7 @@ from functools import reduce
 from src.python_modules.module_analysis_transposon_sites import *
 #%% Import of dataframes output from the SATAY pipeline
 
-names_libraries={'wt':'data_wt_merged.xlsx','dnrp1':'data_dnrp1_merged.xlsx'}
+names_libraries={'wt':'data_wt_merged.xlsx','dbem1dbem3dnrp1':'data-enzo-dbem13dnrp1.xlsx'}
 data_library=[]
 for i in names_libraries.keys():
  data_library.append(pd.read_excel('datasets/'+names_libraries[i],index_col='Unnamed: 0',engine='openpyxl'))
@@ -64,7 +64,7 @@ analysis_libraries_pd=pd.DataFrame(analysis_libraries)
 
 #%% Defining the dataframes per type 
 data_wt=data_library_pd.loc['wt'].copy()
-data_nrp1=data_library_pd.loc['dnrp1'].copy()
+data_nrp1=data_library_pd.loc['dbem1dbem3dnrp1'].copy()
 
 ####### Transposon density vs genes ####################
 
@@ -89,12 +89,12 @@ data_nrp1_filtered=filter_low_and_biased_reads_genes(data_nrp1)
 data_nrp1=data_nrp1_filtered
 data_nrp1.fillna(0,inplace=True)# will put zeros to the discarded regions
 #%% Exporting datasets 
-data_nrp1.to_excel('datasets/data_nrp1_filtered_reads_per_tr.xlsx')
+data_nrp1.to_excel('datasets/data_dbem1dbem3dnrp1_enzo_filtered_reads_per_tr.xlsx')
 data_wt.to_excel('datasets/data_wt_filtered_reads_per_tr.xlsx')
 
 #%% Reads distribution per gene
 
-data_wt.index=data_wt['Standard_name']
+#data_wt.index=data_wt['Standard_name']
 
 
 gene='BDH1'
@@ -126,7 +126,7 @@ ax = plt.subplot(grid[0,0])
 ax2 = plt.subplot(grid[1,0])   
 
 ax.plot(data_wt['tr-density'],alpha=0.5,color='b')
-ax.set_ylabel('transposond density: tn/bp')
+ax.set_ylabel('transposon density: tn/bp')
 
 ## annotated centromeres
 for i in data_wt.index:
@@ -137,7 +137,7 @@ for i in data_wt.index:
         ax.text(x=i,y=0.6,s='centromere',rotation=90,fontsize=8)
 
 ax2.plot(data_nrp1['tr-density'],alpha=0.5,color='orange')
-ax2.set_ylabel('transposon density: tn/bp dnrp1 ')
+ax2.set_ylabel('transposon density: tn/bp dbem1dbem3dnrp1 ')
 ax2.set_xlabel('genes')
 ## annotated centromeres
 for i in data_nrp1.index:
@@ -149,9 +149,9 @@ for i in data_nrp1.index:
 
     
 #%% saving the figure transposon density
-fig.savefig('output_images/Transposon-density-WT-annotated-centromeres-WT-vs-dnrp1.png',dpi=300,format='png',transparent=False)
+fig.savefig('output_images/Transposon-density-WT-annotated-centromeres-WT-vs-dbem1dbem3dnrp1.png',dpi=300,format='png',transparent=False)
 #%%  Plot reads per transposon  highlighting the centromere position
-strain=data_nrp1
+strain=data_wt
 
 fig=plt.figure(figsize=(15,15))
 grid = plt.GridSpec(4, 1, wspace=0.0, hspace=0.1)
@@ -216,7 +216,7 @@ for i in strain.index:
         ax3.text(x=i,y=150,s='centromere',rotation=90,fontsize=8)
     
 #%% saving the figure reads per transposon density
-fig.savefig('output_images/dnrp1-Variability-along-genome-raw-data.png',dpi=300,format='png',transparent=False)
+fig.savefig('output_images/WT-Variability-along-genome-raw-data.png',dpi=300,format='png',transparent=False)
 
 #%% Compare the fold change of the reads per transposon per library
 
@@ -228,7 +228,7 @@ fold_change_nrp1=data_nrp1['reads-per-tr']/data_wt['reads-per-tr']
 fold_change_nrp1.replace([np.inf, -np.inf], np.nan, inplace=True)
 fold_change_nrp1.fillna(0,inplace=True)
 
-cutoff=8
+cutoff=50
 
 fig=plt.figure(figsize=(10,30))
 grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.2)
@@ -254,12 +254,13 @@ for i in data_wt.index:
         ax.vlines(x=i,ymin=0,ymax=100,linestyles='-',alpha=0.2)
         ax.text(x=i,y=60,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8,color='red')
 
+cutoff=25
 ax1.set_title('Potential Positive Interactors for nrp1')
 ax1.plot(fold_change_nrp1,alpha=0.6,color='green')
 ax1.hlines(y=cutoff,xmin=0,xmax=14000,linestyles='--',alpha=0.3,label='cutoff')
 ax1.set_xlabel('genomic regions')
 ax1.set_ylabel('fold change reads per tr')
-ax1.set_ylim(0,100)
+ax1.set_ylim(0,20)
 ## annotated centromeres
 for i in data_wt.index:
     
@@ -274,11 +275,11 @@ for i in data_wt.index:
 ax.legend()
 ax1.legend()
 
-ax2.plot(data_wt['reads-per-tr'],data_nrp1['reads-per-tr'],'o',color='gray')
+ax2.plot(data_wt['reads-per-tr'][0:len(data_nrp1)],data_nrp1['reads-per-tr'],'o',color='gray')
 ax2.set_xlim(0,3000)
 ax2.set_ylim(0,3000)
 ax2.set_xlabel('reads per tr WT')
-ax2.set_ylabel('reads per tr dnrp1')
+ax2.set_ylabel('reads per tr mutant')
 #%% Compare the fold change of the transposons per library
 
 fold_change=data_wt['tr-density']/data_nrp1['tr-density']
@@ -289,7 +290,7 @@ fold_change_nrp1=1/fold_change
 fold_change_nrp1.replace([np.inf, -np.inf], np.nan, inplace=True)
 fold_change_nrp1.fillna(0,inplace=True)
 
-cutoff=1.8
+cutoff=50
 
 fig=plt.figure(figsize=(10,30))
 grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.2)
@@ -298,29 +299,31 @@ ax = plt.subplot(grid[0,0])
 ax1 = plt.subplot(grid[1,0])
 ax2 = plt.subplot(grid[2,0])
 
-ax.set_title('Potential Negative Interactors for nrp1')
+ax.set_title('Potential Negative Interactors for the mutant')
 ax.plot(fold_change,alpha=0.6,color='red')
 ax.hlines(y=cutoff,xmin=0,xmax=14000,linestyles='--',alpha=0.3,label='cutoff')
 
 ax.set_ylabel('fold change tr density')
-ax.set_ylim(0,15)
+ax.set_ylim(0,100)
 ## annotated centromeres
 for i in data_wt.index:
     
     
     if fold_change[i]>cutoff and data_wt.loc[i,'Standard_name']!='noncoding':
-        ax.vlines(x=i,ymin=0,ymax=15,linestyles='-',alpha=0.2)
-        ax.text(x=i,y=8,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8)
+        ax.vlines(x=i,ymin=0,ymax=cutoff,linestyles='-',alpha=0.2)
+        ax.text(x=i,y=cutoff,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8)
     if fold_change[i]>cutoff and data_wt.loc[i,'Essentiality']==1 :
-        ax.vlines(x=i,ymin=0,ymax=15,linestyles='-',alpha=0.2)
-        ax.text(x=i,y=8,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8,color='red')
-cutoff=7
-ax1.set_title('Potential Positive Interactors for nrp1')
+        ax.vlines(x=i,ymin=0,ymax=cutoff,linestyles='-',alpha=0.2)
+        ax.text(x=i,y=cutoff,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8,color='red')
+
+
+cutoff=50
+ax1.set_title('Potential Positive Interactors for the mutant')
 ax1.plot(fold_change_nrp1,alpha=0.6,color='green')
 ax1.hlines(y=cutoff,xmin=0,xmax=14000,linestyles='--',alpha=0.3,label='cutoff')
 ax1.set_xlabel('genomic regions')
 ax1.set_ylabel('fold change tr density')
-ax1.set_ylim(0,30)
+ax1.set_ylim(0,100)
 ## annotated centromeres
 
 for i in data_wt.index:
@@ -328,25 +331,25 @@ for i in data_wt.index:
     
     if fold_change_nrp1[i]>cutoff and data_wt.loc[i,'Standard_name']!='noncoding' :
         ax1.vlines(x=i,ymin=0,ymax=30,linestyles='-',alpha=0.2)
-        ax1.text(x=i,y=20,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8)
+        ax1.text(x=i,y=cutoff,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8)
     if fold_change_nrp1[i]>cutoff and data_wt.loc[i,'Essentiality']==1 :
         ax1.vlines(x=i,ymin=0,ymax=30,linestyles='-',alpha=0.2)
-        ax1.text(x=i,y=20,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8,color='red')
+        ax1.text(x=i,y=cutoff,s=data_wt.loc[i,'Standard_name'],rotation=90,fontsize=8,color='red')
         
 ax.legend()
 ax1.legend()
 
-ax2.plot(data_wt['tr-density'],data_nrp1['tr-density'],'o',color='gray')
+ax2.plot(data_wt['tr-density'][0:len(data_nrp1)],data_nrp1['tr-density'],'o',color='gray')
 # ax2.set_xlim(0,3000)
 # ax2.set_ylim(0,3000)
 ax2.set_xlabel('tr density WT')
-ax2.set_ylabel('tr density  dnrp1')
+ax2.set_ylabel('tr density  mutant')
 #%% save figure
-fig.savefig('output_images/fold_change_wt_vs_nrp1_tr_density.png',dpi=300,format='png',transparent=False)
+fig.savefig('output_images/fold_change_wt_vs_dbem1dbem3dnrp1_tr_density.png',dpi=300,format='png',transparent=False)
 
 #%% determine the local variation of transposons along te genome 
 ## Data per chromosome
-#from scipy.stats import sem 
+#from scipy.stats import sem
 mean_wt_chrom=data_wt.groupby(by='chromosome')['Ninsertions'].mean()
 std_wt_chrom=data_wt.groupby(by='chromosome')['Ninsertions'].sem()
 
@@ -380,8 +383,45 @@ ax4 = plt.subplot(grid[3,0])
 ax4.errorbar(data_wt.loc[:,'chromosome'].unique(), mean_wt_chrom_reads,std_wt_chrom_reads, marker='s', mfc='red',
          mec='green', ms=10, mew=1,capsize=4)
 ax4.set_ylabel('Nreads')
+#%% variability for the mutant
+data_nrp1["chromosome"]=data_nrp1["Chromosome"]
+mean_wt_chrom=data_nrp1.groupby(by='chromosome')['Ninsertions'].mean()
+std_wt_chrom=data_nrp1.groupby(by='chromosome')['Ninsertions'].sem()
+
+mean_wt_chrom_trdensity=data_nrp1.groupby(by='chromosome')['tr-density'].mean()
+std_wt_chrom_trdensity=data_nrp1.groupby(by='chromosome')['tr-density'].sem()
+
+mean_wt_chrom_readspertr=data_nrp1.groupby(by='chromosome')['reads-per-tr'].mean()
+std_wt_chrom_readspertr=data_nrp1.groupby(by='chromosome')['reads-per-tr'].sem()
+
+mean_wt_chrom_reads=data_nrp1.groupby(by='chromosome')['Nreads'].mean()
+std_wt_chrom_reads=data_nrp1.groupby(by='chromosome')['Nreads'].sem()
+
+fig=plt.figure(figsize=(10,9))
+grid = plt.GridSpec(4, 1, wspace=0.0, hspace=0.0)
+ax = plt.subplot(grid[0,0])
+ax.errorbar(data_nrp1.loc[:,'chromosome'].unique(), mean_wt_chrom, std_wt_chrom, marker='s', mfc='red',
+         mec='green', ms=10, mew=1,capsize=4)
+ax.set_ylabel('Ninsertions')
+
+ax2 = plt.subplot(grid[1,0])
+ax2.errorbar(data_nrp1.loc[:,'chromosome'].unique(), mean_wt_chrom_trdensity, std_wt_chrom_trdensity, marker='s', mfc='red',
+         mec='green', ms=10, mew=1,capsize=4)
+ax2.set_ylabel('Ninsertions per bp')
+
+ax3 = plt.subplot(grid[2,0])
+ax3.errorbar(data_nrp1.loc[:,'chromosome'].unique(), mean_wt_chrom_readspertr,std_wt_chrom_readspertr, marker='s', mfc='red',
+         mec='green', ms=10, mew=1,capsize=4)
+ax3.set_ylabel('Nreads per Ninsertions')
+
+ax4 = plt.subplot(grid[3,0])
+ax4.errorbar(data_nrp1.loc[:,'chromosome'].unique(), mean_wt_chrom_reads,std_wt_chrom_reads, marker='s', mfc='red',
+         mec='green', ms=10, mew=1,capsize=4)
+ax4.set_ylabel('Nreads')
+
+
 #%% saving the figure 
-fig.savefig('Variability-along-genome-sem.png',dpi=300,format='png',transparent=False)
+fig.savefig('WT-Variability-along-genome-sem.png',dpi=300,format='png',transparent=False)
 #%% assesing local variation per chromosome. Viz per chromosome
 
 magnitudes=['Ninsertions','tr-density','reads-per-tr']
@@ -459,12 +499,12 @@ fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
 ax.set_xlabel('Number of transposons per gene')
 ax.set_ylabel('number of genes (CDS)')
-ax.hist(data_wt['Ninsertions'],bins=300,color='gray',alpha=0.7)
+ax.hist(data_nrp1['Ninsertions'],bins=300,color='gray',alpha=0.7)
 ax.set_xlim(0,200)
-ax.vlines(x=data_wt_greg2['Ninsertions'].median(),ymin=0,ymax=1400,linestyles='--')
-ax.text(x=data_wt_greg2['Ninsertions'].median(),y=1200,s='median all genes')
+ax.vlines(x=data_nrp1['Ninsertions'].median(),ymin=0,ymax=1400,linestyles='--')
+ax.text(x=data_nrp1['Ninsertions'].median(),y=1200,s='median all genes')
 #%% saving the figure
-fig.savefig('Number-of-transposons-per-gene-Greg2.png',dpi=300,format='png',transparent=False)
+fig.savefig('Number-of-transposons-per-gene-dbem1dbem3dnrp1.png',dpi=300,format='png',transparent=False)
 
 
 #%% #%% Histograms of number of transposon per gene according their essentiality
@@ -472,6 +512,7 @@ fig.savefig('Number-of-transposons-per-gene-Greg2.png',dpi=300,format='png',tran
 fig=plt.figure(figsize=(10,9))
 grid = plt.GridSpec(2, 1, wspace=0.0, hspace=0.0)
 
+data_wt=data_nrp1
 essentials=data_wt[data_wt.loc[:,'Essentiality']==1]['Ninsertions']
 nonessentials=data_wt[data_wt.loc[:,'Essentiality']==0]['Ninsertions']
 
@@ -482,8 +523,8 @@ max_x = ax.get_xlim()
 ax.set_xlim(left=0,right=200)
 ax.grid(True)
 ax.set_xticklabels([])
-ax.vlines(x=nonessentials.median(),ymin=0,ymax=300,linestyles='--')
-ax.text(x=nonessentials.median(),y=300,s='median-non-essentials')
+ax.vlines(x=nonessentials.median(),ymin=0,ymax=700,linestyles='--')
+ax.text(x=nonessentials.median(),y=700,s='median-non-essentials')
 ax.set_ylabel('Annotated non essential genes')
 
 ax2 = plt.subplot(grid[1,0])    
@@ -491,15 +532,15 @@ sns.histplot(essentials,binwidth=2,color='orange',alpha=0.7)
 ax2.invert_yaxis()
 ax2.set_xlim(0,200)
 ax2.grid(True)
-ax2.vlines(x=essentials.median(),ymin=0,ymax=40,linestyles='--')
-ax2.text(x=essentials.median(),y=40,s='median-essentials')
+ax2.vlines(x=essentials.median(),ymin=0,ymax=100,linestyles='--')
+ax2.text(x=essentials.median(),y=100,s='median-essentials')
 
 ax2.set_xlabel('Number of transposons per gene')
 ax2.set_ylabel('Annotated essential genes')
 
 plt.show()
 #%% saving the figure
-fig.savefig('Number-of-transposons-per-gene-according-essentiality-Greg2.png',dpi=300,format='png',transparent=False)
+fig.savefig('Number-of-transposons-per-gene-according-essentiality-dbem1dbem3dnrp1.png',dpi=300,format='png',transparent=False)
 #%% Looking for regions devoid of transposons 
 
 difficult_genes=data_wt_agnes[data_wt_agnes['Ninsertions']==0]
@@ -509,9 +550,9 @@ difficult_genes_essentials=difficult_genes[difficult_genes['Essentiality']==1]
 #%% Loooking at correlations with essential genes 
 # fig = plt.figure(figsize=(11,5))
 # ax = fig.add_subplot(111)
-h=sns.pairplot(data=data_wt,vars=['Ninsertions','tr-density',  "reads-per-tr"],hue='Essentiality',corner=True,diag_kind="kde")
+h=sns.pairplot(data=data_nrp1,vars=['Ninsertions','tr-density',  "reads-per-tr"],hue='Essentiality',corner=True,diag_kind="kde")
 h.map_lower(sns.kdeplot, levels=5, color="b")
 
 #%% saving the figure
-h.savefig('pairplot-essentiality-WT.png',dpi=300,format='png',transparent=False)
+h.savefig('pairplot-essentiality-dnrp1.png',dpi=300,format='png',transparent=False)
 
