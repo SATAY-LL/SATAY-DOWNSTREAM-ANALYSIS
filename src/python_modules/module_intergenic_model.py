@@ -66,6 +66,24 @@ def getting_r(datasets):
         
     return r,r_non_filter
 
+#### adding features for analysis . File required: pergene_insertions files 
+def adding_features2dataframe(data):
+    data["N_reads"]=np.nan
+    data["tr-density"]=np.nan
+    data["std-reads"]=np.nan
+    data["mean-reads"]=np.nan
+    data["reads-per-tr"]=np.nan
+    data["tranposons"]=np.nan
+    for j in data.index:
+        data["N_reads"][j]=np.sum(data["Reads per insertion location"][j])
+        data["tr-density"][j]=len(data["Reads per insertion location"][j])/(data["End location"][j]-data["Start location"][j])
+        data["std-reads"][j]=np.std(data["Reads per insertion location"][j])
+        data["mean-reads"][j]=np.mean(data["Reads per insertion location"][j])
+        data["reads-per-tr"][j]=data["N_reads"][j]/(len(data["Reads per insertion location"][j])-1)
+        data["tranposons"][j]=len(data["Reads per insertion location"][j])
+    return data 
+
+
 ### Configuring the dataframes for analyses
 
 def pd_to_compare_libraries(data_list,filesnames,datasets,norm=True):

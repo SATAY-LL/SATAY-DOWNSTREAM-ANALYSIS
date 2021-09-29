@@ -12,7 +12,7 @@ import os
 import seaborn as sns
 import scipy 
 
-from src.python_modules.module_intergenic_model import getting_r,pd_to_compare_libraries,filtering_significant_genes,viz_data
+from src.python_modules.module_intergenic_model import getting_r,pd_to_compare_libraries,filtering_significant_genes,viz_data,adding_features2dataframe
 #%% Reads and transposon dataset from tab delimited datasets
 path='datasets/greg_analysis_libraries_unpooled/'
 #path='datasets/Leila_10Feb21_PerGeneFiles/'
@@ -26,7 +26,7 @@ for i in np.arange(0,len(files)):
 names_libraries={'wt':'data_wt_filtered_reads_per_tr.xlsx','dnrp1':'data_nrp1_filtered_reads_per_tr.xlsx'}
 data_library=[]
 for i in names_libraries.keys():
- data_library.append(pd.read_excel('datasets/'+names_libraries[i],index_col='Unnamed: 0'))
+ data_library.append(pd.read_excel('datasets/'+names_libraries[i],index_col='Unnamed: 0',engine='openpyxl'))
 
 datasets=data_library
 
@@ -36,6 +36,78 @@ del data_library,i
 for i in np.arange(0,len(datasets)):
     datasets[i]=datasets[i][datasets[i].Standard_name != 'ADE2']
     datasets[i]=datasets[i][datasets[i].Standard_name != 'URA3']
+
+#%% Reads per insertion location for coding regions 
+
+path='datasets/'
+#path='datasets/Leila_10Feb21_PerGeneFiles/'
+files={"wt":"WT_merged-techrep-a_techrep-b_trimmed.sorted.bam_pergene_insertions.txt",
+       "dnrp1" : "dnrp1_merged_dnrp1-1_dnrp1-2_trimmed.sorted.bam_pergene_insertions.txt",
+       "dbem1dbem3dnrp1":"D18524C717111_BDDP200001534-1A_HJVN5DSXY_L1_sample1interleavedsorted_singleend_trimmed.sorted.bam_pergene_insertions.txt"}
+datasets=[]
+for i in files.keys():
+    datasets.append(pd.read_csv(path+files[i],delimiter="\t")) # tab \t for Greg , " " spaces for agnes dataset
+
+data_library_pd=pd.concat(datasets,keys=files.keys(),sort=True)
+data_library_pd.fillna(0,inplace=True)
+
+data_wt=data_library_pd.loc['wt']
+data_nrp1=data_library_pd.loc['dnrp1']
+data_bem13dnrp1=data_library_pd.loc['dbem1dbem3dnrp1']
+
+
+#%% Extracting integers from string object, to extract reads from str 
+import re
+
+
+lst=[data_wt["Reads per insertion location"],data_nrp1["Reads per insertion location"],
+     data_bem13dnrp1["Reads per insertion location"]]
+
+total=[]
+for j in lst:
+    reads_per_location=[]
+    for i in data_wt.index:
+        q1=[int(s) for s in re.findall(r'\d+', j[i])] # to extract numbers from a string 
+        reads_per_location.append(q1)
+    total.append(reads_per_location)
+    
+data_wt["Reads per insertion location"]=total[0]
+data_nrp1["Reads per insertion location"]=total[1]
+data_bem13dnrp1["Reads per insertion location"]=total[2]
+
+
+
+lst=[data_wt["Insertion locations"],data_nrp1["Insertion locations"],
+      data_bem13dnrp1["Insertion locations"]]    
+
+total=[]
+for j in lst:
+    insertion_locations=[]
+    for i in data_wt.index:
+        q1=[int(s) for s in re.findall(r'\d+', j[i])] # to extract numbers from a string 
+        insertion_locations.append(q1)
+    total.append(insertion_locations)
+
+data_wt["Insertion locations"]=total[0]
+data_nrp1["Insertion locations"]=total[1]
+data_bem13dnrp1["Insertion locations"]=total[2]   
+
+#%% add to the dataframe : trdensity,total number of reads
+
+data_wt_extended=data_wt.copy() # data_wt,data_nrp1,data_bem13dnrp1
+
+data_dnrp1_extended=data_nrp1.copy()
+
+data_bem13dnrp1_extended=data_bem13dnrp1.copy()
+
+data_wt_extended=adding_features2dataframe(data_wt_extended)
+data_dnrp1_extended=adding_features2dataframe(data_dnrp1_extended)
+data_bem13dnrp1_extended=adding_features2dataframe(data_bem13dnrp1_extended)
+#%% Viz of the reads along the gene 
+gene="YAL045C"
+count=np.where(data_wt["Gene name"]==gene)[0][0]
+plt.bar(data_wt["Insertion locations"][count],data_wt["Reads per insertion location"][count])
+plt.xlabel(data_wt["Gene name"][count])
 
 #%%  From reads to fitness from a intergenic competition model
 ## asumming we start with zero reads so one copy per cell
