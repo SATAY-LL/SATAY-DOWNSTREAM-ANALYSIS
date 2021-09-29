@@ -13,7 +13,7 @@ def getting_r(datasets):
     """
     This function computes the maximum rates per gene,effectively the fitness for 
     a strain with a knockout in gene X, given an intergenic model . The intergenic model assumes a 
-    fitine population growth until the carrying capacity (K). This population growth describes a 
+    finite population growth until the carrying capacity (K). This population growth describes a 
     logistic growth. 
     
     Parameters
