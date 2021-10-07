@@ -1,2 +1,11 @@
+
 output_images/
 datasets/
+*.xlsx
+*.png
+*.jpg
+*.csv 
+*.tsv  
+*.txt  
+*.xls 
+

@@ -15,7 +15,8 @@ import math
 #STEP III:
 #compare our fitness values to cellmap data
 #get data from step II and put it in a dataframe
-dataframe = pd.read_csv(r"C:\Users\floor\OneDrive\Documenten\MASTER\MEP\codes\LaanLab-SATAY-DataAnalysis\Python_scripts\ChromosomeRegion_AllGenes.tsv", sep = "\t", names = ["chromosome","gene", "start bp", "stop bp",  "+1 or -1 strand"] )
+dataframe = pd.read_csv(r"../datasets/ChromosomeRegion_AllGenes.tsv", sep = "\t", names = ["chromosome","gene", "start bp", "stop bp",  "+1 or -1 strand"] )
+# datafile missing currently 
 dataframe['readsWT1'] = ''
 dataframe['reads_avr1'] = ''
 dataframe['readsWT2'] = ''
@@ -31,7 +32,8 @@ dataframe['fitness_avr1median'] = ''
 # import readsWT1
 dataframe['readsWT1']= dataframe['readsWT1'].astype('object')
 
-with open('data_step2_readsWT1.csv', newline='') as f:
+with open('../datasets/data_step2_readsWT1.csv', newline='') as f:
+    # datafile missing currently 
     reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
     data = list(reader)
 dataframe['readsWT1'] = data
@@ -39,7 +41,8 @@ dataframe['readsWT1'] = data
 #import reads WT2
 dataframe['readsWT2']= dataframe['readsWT2'].astype('object')
 
-with open('data_step2_readsWT2.csv', newline='') as f:
+with open('../datasets/data_step2_readsWT2.csv', newline='') as f:
+    # datafile missing currently 
     reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
     data2 = list(reader)
 dataframe['readsWT2'] = data2
@@ -47,7 +50,7 @@ dataframe['readsWT2'] = data2
 #import fitness WT1
 dataframe['fitnessWT1']= dataframe['fitnessWT1'].astype('object')
 
-with open('data_step2WT1.csv', newline='') as f:
+with open('../datasets/data_step2WT1.csv', newline='') as f:
     reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
     data3 = list(reader)
 dataframe['fitnessWT1'] = data3
@@ -55,7 +58,7 @@ dataframe['fitnessWT1'] = data3
 #import fitness WT2
 dataframe['fitnessWT2']= dataframe['fitnessWT2'].astype('object')
 
-with open('data_step2WT2.csv', newline='') as f:
+with open('../datasets/data_step2WT2.csv', newline='') as f:
     reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
     data4 = list(reader)
 dataframe['fitnessWT2'] = data4
@@ -144,7 +147,7 @@ pylab.plot(readsWT1,p(readsWT1),"r--", label = 'fit of scatter')
 print ("y=%.6fx+(%.6f)"%(z[0],z[1]))
 
 plt.legend()
-plt.savefig('afb.jpg', dpi=1200)
+plt.savefig('../output_images/afb.jpg', dpi=1200)
 plt.show()
 
 #plot fitness WT1 and WT2
