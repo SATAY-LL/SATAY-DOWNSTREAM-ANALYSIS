@@ -1,3 +1,6 @@
+
+output_images/
+datasets/
 *.xlsx
 *.png
 *.jpg
@@ -5,3 +8,4 @@
 *.tsv  
 *.txt  
 *.xls 
+
