@@ -6,6 +6,7 @@ Created on Fri Jun  4 12:01:37 2021
 @author: linigodelacruz
 """
 
+#%% Import libraries
 
 import numpy as np
 import matplotlib.pyplot as plt 
@@ -16,7 +17,8 @@ import seaborn as sns
 import scipy 
 from functools import reduce
 
-from src.python_modules.module_analysis_transposon_sites import *
+
+from python_modules.module_analysis_transposon_sites import *
 #%% Import of dataframes output from the SATAY pipeline
 
 names_libraries={'wt_a':'data_wt_a.xlsx','wt_b':'data_wt_b.xlsx',
@@ -24,7 +26,7 @@ names_libraries={'wt_a':'data_wt_a.xlsx','wt_b':'data_wt_b.xlsx',
                  'dnrp1_2_a':'dnrp1_1_2_a_unmerged.xlsx','dnrp1_2_b':'dnrp1_1_2_b_unmerged.xlsx'}
 data_library=[]
 for i in names_libraries.keys():
- data_library.append(pd.read_excel('datasets/'+names_libraries[i],index_col='Unnamed: 0'))
+ data_library.append(pd.read_excel('../datasets/'+names_libraries[i],index_col='Unnamed: 0',engine='openpyxl'))
 #%%
 #### Creating a big dataframe of the libraries
 
