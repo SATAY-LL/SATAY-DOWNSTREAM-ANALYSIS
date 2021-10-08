@@ -46,8 +46,9 @@ def getting_r(datasets):
     for i in np.arange(0,len(datasets)):
     
     
-       
-        K=np.sum(datasets[i]['reads-per-tr'])
+        # check if datasets is a llist of dataframes or just one 
+        
+        K=np.sum(datasets[i]['reads-per-tr']) # carrying capacity
         N=datasets[i]['reads-per-tr'] # contribution of each mutant to the population density 
         # it will compute a carrying capacity per dataset 
        

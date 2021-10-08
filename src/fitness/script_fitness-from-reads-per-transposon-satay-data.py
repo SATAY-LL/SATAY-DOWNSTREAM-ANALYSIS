@@ -109,6 +109,14 @@ count=np.where(data_wt["Gene name"]==gene)[0][0]
 plt.bar(data_wt["Insertion locations"][count],data_wt["Reads per insertion location"][count])
 plt.xlabel(data_wt["Gene name"][count])
 
+#%% 
+# Filter the reads per tr by the transposon density being very small or too high (0.01 t 0.2)
+
+## low=data_wt_extended[data_wt_extended.loc[:,'tr-density']<0.01]
+## high=data_wt_extended[data_wt_extended.loc[:,'tr-density']>0.8]
+
+
+# Implement the rates and the uncertainty associated with them in terms of the std of reads and the transposon density 
 #%%  From reads to fitness from a intergenic competition model
 ## asumming we start with zero reads so one copy per cell
 # r=K/T(K-N)
@@ -118,7 +126,7 @@ plt.xlabel(data_wt["Gene name"][count])
 
 ## Getting the rates from the function : getting_r
 
-rates,rates_no_filter=getting_r(datasets)
+rates,rates_no_filter=getting_r(data_wt_extended)
 
 
 #%% Preparing datasets for analyses
