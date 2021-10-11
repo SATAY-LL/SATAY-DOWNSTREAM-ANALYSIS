@@ -4,6 +4,7 @@ Created on Tue Feb 16 16:27:36 2021
 
 @author: linigodelacruz
 """
+#%% Import libraries
 
 import numpy as np
 import matplotlib.pyplot as plt 
@@ -11,7 +12,10 @@ import pandas as pd
 import os
 import seaborn as sns
 import scipy 
+import sys
 
+file_dirname = os.path.dirname(os.path.abspath('__file__'))
+sys.path.insert(1,os.path.join(file_dirname,'..',".."))
 from src.python_modules.module_intergenic_model import getting_r,pd_to_compare_libraries,filtering_significant_genes,viz_data,adding_features2dataframe
 #%% Reads and transposon dataset from tab delimited datasets
 path='datasets/greg_analysis_libraries_unpooled/'
@@ -39,6 +43,7 @@ for i in np.arange(0,len(datasets)):
 
 #%% Reads per insertion location for coding regions 
 
+#path='../../datasets/' ## vscode 
 path='datasets/'
 #path='datasets/Leila_10Feb21_PerGeneFiles/'
 files={"wt":"WT_merged-techrep-a_techrep-b_trimmed.sorted.bam_pergene_insertions.txt",
@@ -126,9 +131,27 @@ plt.xlabel(data_wt["Gene name"][count])
 
 ## Getting the rates from the function : getting_r
 
-rates,rates_no_filter=getting_r(data_wt_extended)
+rates=getting_r(data_wt_extended)
 
+#%% uncertainty related to the rates 
+## expand this expression : np.log(N*K/(K-N))/T taking into account that N=p/q
+## uncertainty of p= std(p) per gene and uncertainty of q= 1-density(q) 
+data=data_wt_extended
+T=90
+#cte=T*np.sum(data["reads-per-tr"])
+cte=np.sum(data["reads-per-tr"])
+P=data["reads-per-tr"]/cte
+uncertainty_r=[]
+for i in data.index:
+    p=data["Reads per insertion location"][i]
+    q=data["tr-density"][i]
+    uncertainty_r.append(P[i]*np.sqrt((np.std(p)/data["reads-per-tr"][i])**2+((1-q)/q)**2))
 
+data["uncertainty_r"]=uncertainty_r
+
+#%%
+
+plt.errorbar(data.index[100:150],data.loc[data.index[100:150],"rates-intergenic"],yerr=data.loc[data.index[100:150],"uncertainty_r"])
 #%% Preparing datasets for analyses
 
 
