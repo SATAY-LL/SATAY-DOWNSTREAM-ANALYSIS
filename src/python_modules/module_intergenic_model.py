@@ -43,29 +43,48 @@ def getting_r(datasets):
     #C_end=C*8 # aprox density of cells per ml at the end of the reseed (counting the number of generations )
  
     #K=C_end
-    for i in np.arange(0,len(datasets)):
-    
-    
-        # check if datasets is a llist of dataframes or just one 
+    # check if datasets is a llist of dataframes or just one 
+    if type(datasets)=="list": 
+        for i in np.arange(0,len(datasets)):
         
-        K=np.sum(datasets[i]['reads-per-tr']) # carrying capacity
-        N=datasets[i]['reads-per-tr'] # contribution of each mutant to the population density 
-        # it will compute a carrying capacity per dataset 
-       
-                       
-        r.append(np.log(N*K/(K-N))/T)
         
-        K_n=np.sum(datasets[i]['Nreadsperinsrt']) # it will compute a carrying capacity per dataset 
-        N_n=datasets[i]['Nreadsperinsrt']
-       
+            
+            
+            K=np.sum(datasets[i]['reads-per-tr']) # carrying capacity
+            N=datasets[i]['reads-per-tr'] # contribution of each mutant to the population density 
+            # it will compute a carrying capacity per dataset 
+        
+                        
+            r.append(np.log(N*K/(K-N))/T)
+            
+            # K_n=np.sum(datasets[i]['Nreadsperinsrt']) # it will compute a carrying capacity per dataset 
+            # N_n=datasets[i]['Nreadsperinsrt']
+        
 
-                       
-        r_non_filter.append(np.log(N_n*K_n/(K_n-N_n))/T)
+                        
+            # r_non_filter.append(np.log(N_n*K_n/(K_n-N_n))/T)
+    else: 
+            datasets.replace([np.inf, -np.inf], np.nan, inplace=True) # replace inf by the max number of the dataset
+            datasets.fillna(max(datasets["reads-per-tr"]),inplace=True)
+            K=np.sum(datasets['reads-per-tr']) # carrying capacity
+            N=datasets['reads-per-tr'] # contribution of each mutant to the population density 
+            # it will compute a carrying capacity per dataset 
         
+                        
+            r.append(np.log(N*K/(K-N))/T)
+            
+            # K_n=np.sum(datasets['Nreadsperinsrt']) # it will compute a carrying capacity per dataset 
+            # N_n=datasets['Nreadsperinsrt']
+        
+
+                        
+            # r_non_filter.append(np.log(N_n*K_n/(K_n-N_n))/T)
+
+            datasets["rates-intergenic"]=r[0]
               
         
         
-    return r,r_non_filter
+    return r
 
 #### adding features for analysis . File required: pergene_insertions files 
 def adding_features2dataframe(data):
