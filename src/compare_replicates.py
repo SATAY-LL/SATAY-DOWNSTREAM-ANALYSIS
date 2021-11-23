@@ -23,7 +23,7 @@ import scipy.stats as ss
 
 
 #STEP III:
-#compare our fitness values to cellmap data
+#compare our fitness of 1 file to another
 #get data from step II and put it in a tabel
 tabel = pd.read_csv(r"C:\Users\floor\OneDrive\Documenten\MASTER\MEP\codes\LaanLab-SATAY-DataAnalysis\Python_scripts\data\ChromosomeRegion_AllGenes.tsv", sep = "\t", names = ["chromosome","gene", "start bp", "stop bp",  "+1 or -1 strand"] )
 tabel['fitness1merged'] = ''
@@ -54,6 +54,8 @@ tabel['fitness2a'] = data4
 
 del(data3,data4)
 
+
+#find median of fitness values
 for i in range(0, len(tabel)-1):
     if tabel.at[i, 'fitness1a'] != []:
         tabel.at[i, 'fitness_avr1a'] =  statistics.median(tabel.at[i, 'fitness1a'])
@@ -118,6 +120,7 @@ differencemerged = []
 differencemerged_notrounded = []
 chromosome  = 'chrXII'
 
+## calculate diffenences:
 for i in range(0,len(tabel)):
     if  type(tabel.at[i,'fitness_avr1merged']) == float and  type(tabel.at[i,'fitness_avr2merged']) == float  and len(tabel.at[i,'fitness1merged']) >5 and len(tabel.at[i,'fitness2merged']) >5: #and tabel.at[i, 'chromosome'] == chromosome:
        
@@ -132,7 +135,7 @@ for j in range(0,len(fitness1merged)-1):
     differencemerged_notrounded.append(xmerged)
 abundancemerged =Counter(differencemerged)
 
-### PLOT OF HISTOGRAM DIFFERENCE + GAUSSIAN
+### PLOT OF HISTOGRAM DIFFERENCE + GAUSSIAN::
     
 binwidth  = 0.01
 _,bins,_ = plt.hist(differencemerged_notrounded, bins=np.arange(min(differencemerged_notrounded), max(differencemerged_notrounded) + binwidth, binwidth), label='Difference between replicates')
@@ -145,7 +148,7 @@ plt.title('Histogram of deviation between biological \n replicates (merged) of -
 plt.ylabel('Abundance')
 plt.legend(bbox_to_anchor=(0.55, 0.85))
 plt.savefig('histogram differences merged with normal distribution', bbox_inches='tight', dpi=1000)
-## PLOTS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+## SCATTER PLOTS OF 2REPLICATES::
 #plot reads wt1 wt2     
 # plt.style.use('Solarize_Light2')
 # plt.scatter(fitness1a, fitness2a,  c='black', alpha = 0.1, marker="x")
@@ -173,9 +176,9 @@ plt.savefig('histogram differences merged with normal distribution', bbox_inches
 
 # plt.style.use('Solarize_Light2')
 # plt.scatter(fitness1a, fitness2a,  c='black', alpha = 0.1, marker="x")
-## PLOTS of DIFFERENCES
-## singles
 
+
+## PLOTS of DIFFERENCES
 muS, stdS = norm.fit(difference)
 
 lists = sorted(abundance.items()) # sorted by key, return a list of tuples
@@ -198,6 +201,8 @@ FWHM = FWHM_points[1] -FWHM_points[0]
 plt.plot(x_valuesHWHM, y_valueHWHM, label = 'FWHM (=' +str(round(FWHM,3)) + ')', color = 'black')
 plt.legend()
 
+
+#fit exponential functions::
 # #fit to two exponential functions
 # x_1halve = np.asarray(xdata[3:107])
 # x_2halve = np.asarray(xdata[107:-3])
@@ -222,7 +227,7 @@ plt.legend()
 # y_2HS = np.exp(-power1_2HS) * np.exp(-(power2_2HS*x_2halve))
 
 
-# #Find FULL WIDHT HALVE MAXIMUM
+# #Find half WIDHT HALVE MAXIMUM of exponential fits
 # peak_top = 0
 # for i in ydata:
 #     if i > peak_top:
@@ -236,7 +241,9 @@ plt.legend()
 # # plt.plot(x_values, y_value, label = 'FWHM (=' +str(round(FWHM,3)) + ')', color = 'black')
 # #plt.plot(x_2halve, y_2HS, color = 'indigo' , label = 'fit 1a & 2a to two exponentials \n outer 3 values removed ')
 # del (x_values, y_value, left, right, FWHM, half_max, i)
-# #MERGED
+
+
+# #MERGED / second comparison plot
 lists2 = sorted(abundancemerged.items()) # sorted by key, return a list of tuples
 
 
@@ -259,7 +266,8 @@ y_valueHWHM = [halvemax, halvemax]
 FWHM_M = FWHM_merg[1]-FWHM_merg[0]
 plt.plot(x_valuesHWHM, y_valueHWHM, label = 'FWHM (=' +str(round(FWHM_M,3)) + ')', color = 'black')
 plt.savefig('50%', dpi=1000)
-# #fit to two exponential functions
+
+# #also fit to two exponential functions to the second comparison
 # a_1halve = np.asarray(a[:106])
 # a_2halve = np.asarray(a[104:-7])
 # b_1halve = np.asarray(b[:106])
@@ -295,13 +303,14 @@ plt.savefig('50%', dpi=1000)
 # y_value = [half_max, half_max]
 # plt.plot(x_values, y_value, label = 'FWHM (=' +str(round(FWHM,3)) + ')', color = 'black')
 
-# del (x_values, y_value, left, right, FWHM, half_max, i)
-# plt.legend(loc='center left', bbox_to_anchor=(0.55, 0.85))
-# # # # Plot the PDF of a gaussian.
-# # xmin, xmax = plt.xlim()
-# # x = np.linspace(xmin, xmax, 100)
-# # p = np.multiply(norm.pdf(sorted(difference), muS, stdS), 80)
+#del (x_values, y_value, left, right, FWHM, half_max, i)
+#plt.legend(loc='center left', bbox_to_anchor=(0.55, 0.85))
+# # # Plot the PDF of a gaussian.
+# xmin, xmax = plt.xlim()
+# x = np.linspace(xmin, xmax, 100)
+# p = np.multiply(norm.pdf(sorted(difference), muS, stdS), 80)
   
+##plot normal distribution::
 # plt.plot(sorted(difference), p,  linewidth=2, label = 'normal distr. tech. rep.', color = 'indigo') #, label = 'normal distribution of single, STD=' +  str(round(stdS,3)))
 
 # # Plot the PDFof merged.
@@ -313,6 +322,3 @@ plt.savefig('50%', dpi=1000)
 plt.legend(loc='center left', bbox_to_anchor=(0.55, 0.8))
 plt.savefig('differences fit to exponential', bbox_inches='tight', dpi=1000)
 
-# # plt.show()
-
-# #
